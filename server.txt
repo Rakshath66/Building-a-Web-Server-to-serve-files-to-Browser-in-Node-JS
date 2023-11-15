@@ -1,0 +1,110 @@
+// const http=require('http');
+// const path=require('path');
+// const fs=require('fs');
+// const fspromises=require('fs').promises;
+
+// const logEvents=require('./logEvents');
+// const EventEmitter= require('events');
+// class Emitter extends EventEmitter {};
+// const myEmitter = new Emitter();
+
+// //backend: serving diff files to the browser
+// //steps
+// //1.host page on one port
+// //2.user will request the page
+// //3.based on the extension provided, create file path
+// //4.search for the file in file path
+// //5.if file is available, then serve the user
+// //6.orelse return error message like 404
+
+// myEmitter.on('log',(msg,filename) => logEvents(msg,filename));
+
+// //hosting page on this port
+// const PORT = process.env.PORT || 3500;
+// const serveFile= async(filepath, contentType, response) => {
+//     try{
+//         const rawdata= await fspromises.readFile(filepath, !contentType.includes('image')?'utf8':'');//if image  not utf-8, otherwise utf-8
+//         const data= contentType === 'application/json' ? JSON.parse(rawdata) :rawdata;//if json parse it
+//         response.writeHead(filepath.includes('404.html')?404:200, {'Content-Type' : contentType});//if filepath has error404 then status code is 404 error
+//         response.end(contentType === 'application/json' ? JSON.stringify(data) : data);//if json convert to string, send the response
+//     }
+//     catch(err)
+//     {
+//         console.log(err);
+//         myEmitter.emit('log',`${req.name}\t${req.method}`,'errLog.txt');
+//         response.statusCode=500;//write error status code and send
+//         response.end();
+//     }
+// }
+
+// //creating server
+// const server= http.createServer((req,res) => {
+//     console.log(req.url,req.method);//url typed on browser
+//     myEmitter.emit('log',`${req.url}\t${req.method}`,'reqLog.txt');
+//     const extension=path.extname(req.url);
+// let contentType;
+// switch(extension)
+// {
+//     case '.css':
+//         contentType='text/css';
+//         break;
+//     case '.js':
+//         contentType='text/javascript';
+//         break;
+//     case '.json':
+//         contentType='application/json';
+//         break;
+//     case '.jpg':
+//         contentType='image/jpeg';
+//         break;
+//     case '.png':
+//         contentType='image/png';
+//         break;
+//     case 'text':
+//         contentType='text/plain';
+//         break;
+//     default:
+//         contentType='text/html';
+// }
+
+// //creating filepath where the file exists
+// const filepath=
+//     contentType === 'text/html' && req.url === '/'?  //if there is nothing typed in browser, / means html
+//         path.join(__dirname, 'views', 'index.html'): //search inside views folder
+//         contentType === 'text/html' && req.url.slice(-1) === '/'? //if last character is /, then may be subfolder inside view folder, req.url means path inside subfolder
+//             path.join(__dirname, 'views', req.url, 'index.html'):
+//             contentType === 'text/html'? //if html files return, else not html file search that req only
+//                 path.join(__dirname, 'views', req.url):
+//                 path.join(__dirname,req.url);
+
+// if(!extension && req.url.slice(-1)!='/') filepath+='.html';//if no extension, make it to html file
+
+// //check if file exists or not
+// const checkfileexist= fs.existsSync(filepath);
+// if(checkfileexist)
+// {
+//     //serve the file
+//     serveFile(filepath,contentType,res); //server the searched file
+// }
+// else
+// {
+//     //send 404 loading page or redirecting page in response
+//     switch(path.parse(filepath).base)
+//     {
+//         case 'old-page.html':
+//             res.writeHead(301,{'Location':'/new-page.html'});//redirecting the page to newpage html, default code for redirecting 302
+//             res.end();
+//             break;
+//         case 'www.page.html':
+//             res.writeHead(301,{'Location':'/'});//redirect to html
+//             res.end();
+//             break;
+//         default:
+//             serveFile(path.join(__dirname,'views','404.html'),'text/html',res);//load 404 error page
+//     }
+// }
+// });
+   
+// server.listen(PORT, () => {
+//     console.log(`server running at port : ${PORT}`);
+// });
